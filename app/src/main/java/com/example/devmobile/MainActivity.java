@@ -3,29 +3,61 @@ package com.example.devmobile;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.widget.ListView;
+import android.util.Log;
+import android.view.View;
+
+import com.example.devmobile.Adapter.ToDoAdapter;
+import com.example.devmobile.Model.ToDoModel;
+import com.example.devmobile.Utils.DatabaseHandler;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements DialogCloseListener {
+
+    private RecyclerView todosRecyclerView;
+    private ToDoAdapter toDoAdapter;
+    private List<ToDoModel> todoList;
+    private DatabaseHandler db;
+    private FloatingActionButton addTodoButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ListView list = (ListView)findViewById(R.id.listview1);
-        final ArrayList<Todo> todos = new ArrayList<Todo>();
-        CustomAdapter listItemsAdapter = new CustomAdapter(this, todos);
-        for (int i = 0; i < 40; i++) {
-            todos.add(new Todo("coucou" + i, false));
-        }
-        list.setAdapter(listItemsAdapter);
 
+        db = new DatabaseHandler(this);
+        db.openDatabase();
+        todoList = new ArrayList<>();
+        todosRecyclerView = findViewById(R.id.todosRecyclerView);
+        todosRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        toDoAdapter = new ToDoAdapter(db, this);
+        todosRecyclerView.setAdapter(toDoAdapter);
 
-        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+        addTodoButton = findViewById(R.id.addTodoButton);
+        addTodoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AddNewTodo.newInstance().show(getSupportFragmentManager(), AddNewTodo.TAG);
+            }
+        });
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new RecyclerItemTouchHelper(toDoAdapter));
+        itemTouchHelper.attachToRecyclerView(todosRecyclerView);
+
+        todoList = db.getAllTodos();
+        Collections.reverse(todoList);
+        toDoAdapter.setTodos(todoList);
+
+        OnBackPressedCallback callback =  new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -43,5 +75,13 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         getOnBackPressedDispatcher().addCallback(callback);
+    }
+
+    @Override
+    public void handleDialogClose(DialogInterface dialog) {
+        todoList = db.getAllTodos();
+        Collections.reverse(todoList);
+        toDoAdapter.setTodos(todoList);
+        toDoAdapter.notifyDataSetChanged();
     }
 }
