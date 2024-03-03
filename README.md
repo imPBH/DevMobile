@@ -8,8 +8,8 @@ Liste des fonctionnalités implémentées :
 - [ ] Utilisation de Room
 - [ ] Utilisation de Firebase
 - [ ] Nombre d'activités ou fragment supérieur ou égal à 3
-- [ ] Gestion du bouton Back (message pour confirmer que l'on veut réellement quitter l'application)
-- [ ] L'affichage d'une liste avec son adapter
+- [x] Gestion du bouton Back (message pour confirmer que l'on veut réellement quitter l'application)
+- [x] L'affichage d'une liste avec son adapter
 - [ ] L'affichage d'une liste avec un custom adapter (avec gestion d’événement)
 - [ ] La pertinence d'utilisation des layouts (L'application doit être responsive et supporter: portrait/paysage et tablette)
 - [ ] L'utilisation de d’événement améliorant l'ux (pex: swipe). Préciser :
